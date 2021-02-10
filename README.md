@@ -23,6 +23,10 @@ Bilibli视频预览[链接](https://www.bilibili.com/video/BV1ky4y1m7ZF) https:/
 2. 基于ESP8266的温控系统
 3. 控温系统的硬件控制电路
 
+### 交流群
+添加这个qq群`148563337`，需要的朋友多的话，可以考虑一起做。
+
+
 ## ESP8266温控器
 
 ![HeatPlatform_PCB](https://gitee.com/ClimbSnailQ/Project_Image/raw/master/Note/HeatPlatform_PCB.jpg)
