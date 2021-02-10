@@ -37,7 +37,7 @@ Bilibli视频预览[链接](https://www.bilibili.com/video/BV1ky4y1m7ZF) https:/
 
 ![HeatPlatform_PCB_Back](Image/HeatPlatform_PCB_Back.jpg)
 
-1. 总体使用AC220的铝加热板。
+1. 总体使用AC220的铝加热板。控温器的温度范围是室温~1000摄氏度，当前铝加热板最好不要超过400度。
 2. 主控使用的是ESP8266-12F。
 3. 使用MAX6675驱动型热电偶。
 4. 使用PID控制算法控制双向可控硅的导通状态。
