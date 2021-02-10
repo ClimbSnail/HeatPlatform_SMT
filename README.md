@@ -33,10 +33,11 @@ Bilibli视频预览[链接](https://www.bilibili.com/video/BV1ky4y1m7ZF) https:/
 
 ![HeatPlatform_PCB_Back](Image/HeatPlatform_PCB_Back.jpg)
 
-1. 主控使用的是ESP8266-12F。
-2. 使用MAX6675驱动型热电偶。
-3. 使用PID控制算法控制双向可控硅的导通状态。
-4. 使用5脚的EC11旋转编码器作为用户操作的按钮。
+1. 总体使用AC220的铝加热板。
+2. 主控使用的是ESP8266-12F。
+3. 使用MAX6675驱动型热电偶。
+4. 使用PID控制算法控制双向可控硅的导通状态。
+5. 使用5脚的EC11旋转编码器作为用户操作的按钮。
 
 #### 硬件设计要点
 1. 天线附近要保持足够的净空区，否则影响天线的性能。
