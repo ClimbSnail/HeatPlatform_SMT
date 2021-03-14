@@ -50,11 +50,8 @@ class MAX6675:
     self.spi.deinit()   # 关闭spi
     
 
-"""
-This is demo
-"""
-#if __name__ == "test":
-if __name__ == "__main__":
+
+def main():
   import gc
   gc.collect()
   max6675 = MAX6675(Pin(0), Pin(2), Pin(13), Pin(16, Pin.OUT))
@@ -64,6 +61,12 @@ if __name__ == "__main__":
     time.sleep(1)
   
 
+"""
+This is demo
+"""
+if __name__ == "test":
+#if __name__ == "__main__":
+  main()
 
 
 

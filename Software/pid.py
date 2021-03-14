@@ -63,8 +63,7 @@ class Auto_PID(PID):
 """
 This is demo
 """
-if __name__ == "test":
-#if __name__ == "__main__":
+def main():
 	import gc
 	gc.collect()
 	from machine import Timer
@@ -79,6 +78,9 @@ if __name__ == "test":
 		
 
 
+if __name__ == "test":
+#if __name__ == '__main__':
+	main()
 
 
 

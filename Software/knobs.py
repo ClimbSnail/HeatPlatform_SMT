@@ -90,8 +90,7 @@ class EC11:
 """
 This is demo
 """
-#if __name__ == "test":
-if __name__ == "__main__":
+def main():
     import gc
     gc.collect()
     knobs = EC11(4, 5, 0)
@@ -102,6 +101,9 @@ if __name__ == "__main__":
 
 
 
+if __name__ == "test":
+#if __name__ == '__main__':
+	main()
 
 
 

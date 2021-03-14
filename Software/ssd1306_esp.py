@@ -263,8 +263,7 @@ class Interface():
 """
 This is demo
 """
-#if __name__ == "test":
-if __name__ == '__main__':
+def main():
   import gc
   gc.collect()
   from machine import Pin,  I2C
@@ -280,8 +279,11 @@ if __name__ == '__main__':
     oled.text("Nano PYB Hello", 0, 0)
     oled.show()
     time.sleep(1)
-    
 
+
+if __name__ == "test":
+#if __name__ == '__main__':
+  main()
 
 
 

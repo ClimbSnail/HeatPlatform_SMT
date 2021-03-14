@@ -26,7 +26,7 @@ class WifiController(object):
 			self.__wlan.connect(sta_id, sta_passwd) 
 			import time
 			time.sleep(10) #一般睡个5-10秒,应该绰绰有余
-          
+
 			if not self.__wlan.isconnected():
 				self.__wlan.active(False) #关掉连接,免得repl死循环输出
 				print('WifiController:wifi connection error, please reconnect')
@@ -95,8 +95,7 @@ class WifiController(object):
 """
 This is demo
 """
-if __name__ == "test":
-#if __name__ == '__main__':
+def main():
 	wifi = WifiController()
 	ret = wifi.get_valid_bs_list(["orangepi"])
 	print(ret)
@@ -113,7 +112,9 @@ if __name__ == "test":
 	  time.sleep(1)
 
 
-
+if __name__ == "test":
+#if __name__ == '__main__':
+	main()
 
 
 
