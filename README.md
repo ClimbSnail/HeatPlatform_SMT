@@ -74,7 +74,7 @@ Bilibli视频预览[链接](https://www.bilibili.com/video/BV1ky4y1m7ZF) https:/
 
 ### 固件刷写
 1. 使用USB-TTL下载器链接板子的下载接口（已标识引脚，RXD TXD需要反接）。
-2. `uPyCraft`是代码编写工具，同时也是固件刷写工具，打开`uPyCraft`工具，会提示安装字体（随意安装就行）。
+2. `uPyCraft`是代码编写工具，同时也是固件刷写工具，右击`uPyCraft` `以管理员身份运行`打开工具，会提示安装字体（随意安装就行）。
 3. 打开软件后，选择工具栏`Tools`->`BurnFirmware`，打开固件烧录的提示框。
 	* `board`选择`esp8266`
 	* `burn_addr`保持默认
