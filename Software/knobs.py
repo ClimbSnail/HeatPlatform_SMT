@@ -1,5 +1,6 @@
 from machine import Pin
 import gc
+import time
 
 """
 开关编码器功能文件
@@ -40,7 +41,6 @@ class EC11:
         self.pinA = Pin(pinA_num, Pin.IN, Pin.PULL_UP)
         self.pinA.irq(trigger=Pin.IRQ_RISING | Pin.IRQ_FALLING, handler=self.interruter_funcA)
         self.pinB = Pin(pinB_num, Pin.IN, Pin.PULL_UP)
-        self.pinB.irq(trigger=Pin.IRQ_RISING | Pin.IRQ_FALLING, handler=self.interruter_funcB)
         self.pinSw = None
         if pinSw_num != None:
             self.pinSw = Pin(pinSw_num, Pin.IN, Pin.PULL_UP)
@@ -52,19 +52,18 @@ class EC11:
         发生外部中断后执行的函数
         :return:
         """
-        self.pinA_Status = self.pinA.value()
-        if self.pinA_Status == 1 and self.pinB_Status == 0:
+        #print(events)
+        cnt = 0
+        while self.pinA.value() and cnt < 5:
+          cnt += 1
+        if self.pinA.value() == 1:
+          return None
+        
+        if self.pinB.value() == 1:
             self.pulse_count += 1
-        gc.collect()
-
-    def interruter_funcB(self, events):
-        """
-        发生外部中断后执行的函数
-        :return:
-        """
-        self.pinB_Status = self.pinB.value()
-        if self.pinB_Status == 1 and self.pinA_Status == 0:
+        else:
             self.pulse_count -= 1
+        
         gc.collect()
 
     def interruter_funcSW(self, events):
@@ -101,9 +100,13 @@ def main():
 
 
 
-if __name__ == "test":
-#if __name__ == '__main__':
+#if __name__ == "test":
+if __name__ == '__main__':
 	main()
+
+
+
+
 
 
 

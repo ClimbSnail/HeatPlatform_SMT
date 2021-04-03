@@ -12,6 +12,7 @@ from machine import  Pin, PWM, I2C
 import machine
 from machine import Timer
 import gc
+import math
 
 class Interface():
   def __init__(self, scl, sda):
@@ -110,7 +111,7 @@ class HeatPlatform():
     # 创建按键检测的定时器
     self.knobs_timer = Timer(-1)  # periodic with 100ms period
     # mode: Timer.ONE_SHOT / Timer.PERIODIC
-    self.knobs_timer.init(period=1000, mode=Timer.PERIODIC, callback=self.check_knobs)
+    self.knobs_timer.init(period=200, mode=Timer.PERIODIC, callback=self.check_knobs)
     
     # 创建pid调节的定时器
     self.adjust_timer = Timer(-1)
@@ -136,7 +137,8 @@ class HeatPlatform():
     # increase为一个长度为2的元组 编码脉冲+按键是否按下 
     #if increase[1] == 1:
     if increase[0] != 0:
-      self.temp_target = self.temp_target + increase[0]
+      speed = int( math.fabs(increase[0]/2) ) + 1
+      self.temp_target = self.temp_target + increase[0]* speed
       self.beep_flag = True
       
       if self.LED_STATUS == True:
@@ -194,9 +196,7 @@ class HeatPlatform():
   def __del__(self):
     self.temperature_timer.deinit()
     self.knobs_timer.deinit()
-    self.adjust_timer.deinit()
-    print("Stop HeatPlatform")
-    
+    self.adjust_timer.deinit()   
     
 
 class MyBoot():
@@ -258,6 +258,8 @@ if __name__ == '__main__':
     time.sleep(5)
    
    
+
+
 
 
 
