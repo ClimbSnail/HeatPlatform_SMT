@@ -150,21 +150,21 @@ class SSD1306:
                                           >> (8-y0)) | (self.buffer[start+num] << y0)
 
     def img_16x16(self, img, x, y, col=1):  # 在(x, y)处显示字符串，注意text()函数内置的字体是8x16的，暂时不能替换
+        self.fill_rect(x, y, 16, 16, 0)
         x0 = x % 8
         x1 = x
         y0 = y % 8  # 34 2
         y1 = y//8*128  # 34 4
-        index = 0
 
         start = y1+x1
         for num in range(16):
             self.buffer[start+num] = (self.buffer[start+num]
                                       << (8-y0) >> (8-y0)) | (img[num] << y0)
-            # buffer低y0位  |  num_list低8-y0位
+            # buffer低y0位  |  img-y0位
         start = y1+128+x1
         for num in range(16):
             self.buffer[start+num] = (img[num] >> (8-y0)) | (img[num+16] << y0)
-            # num_list高y0位  |  num_list低8-y0位
+            # img高y0位  |  img-y0位
 
         start = y1+256+x1
         if start >= 8*128:
@@ -172,6 +172,26 @@ class SSD1306:
         for num in range(16):
             self.buffer[start+num] = (img[num+16] >>
                                       (8-y0)) | (self.buffer[start+num] << y0)
+                                      
+    def img_8x8(self, img, x, y, col=1):  # 在(x, y)处显示字符串，注意text()函数内置的字体是8x16的，暂时不能替换
+        self.fill_rect(x, y, 8, 8, 0)
+        x0 = x % 8
+        x1 = x
+        y0 = y % 8  # 34 2
+        y1 = y//8*128  # 34 4
+
+        start = y1+x1
+        for num in range(8):
+            self.buffer[start+num] = (self.buffer[start+num] <<
+                                        (8-y0) >> (8-y0)) | (img[num] << y0)
+            # buffer低y0位  |  img-y0位
+
+        start = y1+128+x1
+        if start >= 8*128:
+            return
+        for num in range(8):
+            self.buffer[start+num] = (img[num] >> (8-y0)) | (self.buffer[start+num] << y0)
+            # img高y0位  |  img-y0位
 
     def hline(self, x, y, w, col):  # 按宽度填充(直线)
         self.framebuf.hline(x, y, w, col)
@@ -250,42 +270,6 @@ class SSD1306_SPI(SSD1306):
         self.res.low()
         time.sleep_ms(10)
         self.res.high()
-
-
-"""
-class Interface():
-  def __init__(self, scl, sda):
-    i2c = I2C(scl=scl, sda=sda, freq=400000)
-    self.oled = SSD1306_I2C(128, 64, i2c, addr=0x3c, external_vcc=False)
-    self.set_draw_panel()
-    self.show()
-	
-  def set_draw_panel(self):
-    weigth = 2
-    self.oled.fill_rect(0, 0, 128, weigth, 1)
-    self.oled.fill_rect(0, 0, weigth, 64, 1)
-    self.oled.fill_rect(126, 0, weigth, 64, 1)
-    self.oled.fill_rect(0, 62, 128, weigth, 1)
-    #self.oled.fill_rect(0,  31, 96, 2, 1)
-    
-  def set_temperature_target(self, dat_str):
-    self.oled.text("SET: ", 3, 3)
-    self.oled.fill_rect(30, 3, 4*8, 8, 0)
-    self.oled.text(dat_str, 30, 3)
-        
-  def set_temperature_now(self, dat_str):
-    self.oled.text("Now: ", 3, 20)
-    self.oled.fill_rect(30, 20, 4*8, 8, 0)
-    self.oled.text(dat_str, 30, 20)
-     
-  def set_pwm(self, dat_str):
-    self.oled.text("PWM: ", 3, 52)
-    self.oled.fill_rect(30, 52, len(dat_str)*8, 8, 0)
-    self.oled.text(dat_str, 30, 52)
-
-  def show(self):
-    self.oled.show()
-"""
 
 """
 This is demo

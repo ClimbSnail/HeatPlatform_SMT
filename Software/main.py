@@ -28,21 +28,22 @@ class HeatPlatform():
         self.beep = Pin(13, Pin.OUT)    # 蜂鸣器引脚
         self.beep.value(1)      # 关闭蜂鸣器
         self.beep_flag1 = True
-        self.beep_flag2 = False
+        self.beep_flag2 = False	# 只当编码器值改变时才置为True
         # 安全温度阈值，当 实际温度-与设定温度>self.max_error_temperature 触发报警
-        self.max_error_temperature = 20
+        self.max_error_temperature = 30
 
-        self.buf_len = 10
+        self.buf_len = 3
         self.buf_index = 0
-        self.buf_sum = 0
         self.temperature_err_flag = True
         self.temperature_buf = [20] * self.buf_len
+        self.buf_sum = 20 * self.buf_len
 
         self.temp_now = self.max6675.read_temperature()
         self.temp_target = 50
         # 进行PID控制的阈值（以致于前期可以持续快速升温）
-        self.temp_DValue = 3
+        self.temp_DValue = 20
         self.pid_enable = False
+        self.pid_dt = 300 # PID的调整时间ms
         gc.collect()
 
         # 创建OLED显示器
@@ -50,20 +51,21 @@ class HeatPlatform():
         self.interface = Interface(self, Pin(1), Pin(3), OLED_Status)
         self.interface.temperature_now = self.temp_now
         self.interface.temperature_target = self.temp_target
-        self.interface.show()
+        self.interface.opt_deal()
 
         # 创建编码器控制对象
         self.knobs = EC11(4, 5, 0)
 
         # 创建pid控制对象
-        # self.pid_contorller = PID(0.7, 0.4, 0.25, 0.5)
-        self.pid_contorller = PID(0.1, 0.3, 0.1, 0.5)
+        # self.pid_contorller = PID(6.0, 18.0, 6.0, self.pid_dt/1000)
+        # self.pid_contorller = PID(6.0, 3.0, 10.0, self.pid_dt/1000)
+        self.pid_contorller = PID(1.0, 0.3, 6.0, self.pid_dt/1000)
 
-        # 创建温度读取的定时器
-        self.beep_timer = Timer(-1)  # periodic with 100ms period
+        # 创建蜂鸣器的定时器
+        self.beep_start_timer = Timer(-1)  # periodic with 100ms period
         # mode: Timer.ONE_SHOT / Timer.PERIODIC
-        self.beep_timer.init(period=500, mode=Timer.PERIODIC,
-                             callback=self.short_beep)
+        self.beep_start_timer.init(period=1000, mode=Timer.PERIODIC,
+                             callback=self.start_beep)
 
         # 创建温度读取的定时器
         self.temperature_timer = Timer(-1)  # periodic with 100ms period
@@ -81,7 +83,7 @@ class HeatPlatform():
         self.adjust_timer = Timer(-1)
         # mode: Timer.ONE_SHOT / Timer.PERIODIC
         self.adjust_timer.init(
-            period=500, mode=Timer.PERIODIC, callback=self.adjust_temperature)
+            period=self.pid_dt, mode=Timer.PERIODIC, callback=self.adjust_temperature)
 
         gc.collect()
 
@@ -103,15 +105,27 @@ class HeatPlatform():
         # 跳转到界面里处理按键触发的指令
         self.interface.opt_deal(increase[0], increase[1])
 
-    def short_beep(self, timer):
+    def start_beep(self, timer):
         """
         蜂鸣器报警
         """
-        if self.beep_flag1 == True and self.beep_flag2 == True:
+        if self.beep_flag1 == True and self.beep_flag2 == True \
+			and self.beep.value() == 1:
             self.beep_flag1 = False
+            self.beep_flag2 = False
             self.beep.value(0)
-            time.sleep(1)
-            self.beep.value(1)
+            # 创建蜂鸣器的关闭定时器
+            self.beep_end_timer = Timer(-1)  # periodic with 100ms period
+            # mode: Timer.ONE_SHOT / Timer.PERIODIC
+            self.beep_end_timer.init(
+                period=700, mode=Timer.ONE_SHOT, callback=self.end_beep)
+
+    def end_beep(self, timer):
+        """
+        蜂鸣器报警
+        """
+        self.beep.value(1)
+       
 
     def adjust_temperature(self, timer):
         if self.temperature_err_flag == True:
@@ -128,12 +142,12 @@ class HeatPlatform():
         pwm_val = None  # 输出的PWM值
         if self.temp_target - self.temp_now > self.temp_DValue:
             pwm_val = 0
-            self.pid_enable = False
-            self.beep_flag2 = False
-            self.pid_contorller.set_data(3, 0)
+            #self.pid_enable = False
+            self.beep_flag1 = False
+            self.pid_contorller.set_data(self.temp_DValue, 0)
         elif self.temp_now > self.temp_target:
             pwm_val = 1023
-            self.pid_enable = False
+            #self.pid_enable = False
             if self.temp_now-self.max_error_temperature > self.temp_target:
                 # 当温度高于安全温度差，立即报警
                 self.beep_flag1 = True  # 蜂鸣器报警标志
@@ -141,13 +155,13 @@ class HeatPlatform():
             self.pid_contorller.set_data(0, 0)
         else:
             if self.temp_target == self.temp_now:
-                self.beep_flag2 = True  # 蜂鸣器报警标志
-            if self.pid_enable == False:
-                self.pid_enable = True
+                self.beep_flag1 = True  # 蜂鸣器报警标志
+            #if self.pid_enable == False:
+            #    self.pid_enable = True
             out_val = self.pid_contorller.get_output(
                 self.temp_target, self.temp_now)
 
-            pwm_val = int(out_val)*60
+            pwm_val = int(out_val)
             if pwm_val > 0:
                 if pwm_val > 1020:
                     pwm_val = 0
@@ -219,10 +233,19 @@ if __name__ == '__main__':
         cfg = json.loads(f.read())
     OLED_STATUS = is_ADC_dress()
     # OLED_STATUS = False
-    print(OLED_STATUS)
+    print("\noled_status: ", OLED_STATUS)
     hp = HeatPlatform(cfg, OLED_STATUS)
     #boot = MyBoot(cfg)
     # os.remove('wifi_config.json') # 鍒犻櫎鏂囦欢
     #webrepl.start(password = cfg['webrepl-password'])
     while True:
         time.sleep(5)
+
+
+
+
+
+
+
+
+
