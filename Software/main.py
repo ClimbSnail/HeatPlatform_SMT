@@ -1,13 +1,11 @@
-import network
 import time
-from wifi import WifiController
+# from wifi import WifiController
 from knobs import EC11
 from max6675 import MAX6675
 from ssd1306_esp import SSD1306_I2C
 from pid import PID
-import webrepl
-from machine import Pin, PWM, I2C
-import machine
+# import webrepl
+from machine import Pin, PWM
 from machine import Timer
 import gc
 from surface import Interface
@@ -237,7 +235,6 @@ if __name__ == '__main__':
     hp = HeatPlatform(cfg, OLED_STATUS)
     #boot = MyBoot(cfg)
     # os.remove('wifi_config.json') # 鍒犻櫎鏂囦欢
-    #webrepl.start(password = cfg['webrepl-password'])
     while True:
         time.sleep(5)
 

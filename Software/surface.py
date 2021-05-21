@@ -62,13 +62,10 @@ class Interface():
             self.set_temperature_now(str(self.temperature_now))
             self.set_pwm(str(self.pwm))
 
-        op_status_num = 3
+        op_status_num = 4
         if increase != 0 and self.is_choose == False:
             self.now_status += increase
-            if self.now_status < 0:
-                self.now_status = 0
-            elif self.now_status >= op_status_num:
-                self.now_status = op_status_num-1
+            self.now_status = self.now_status%op_status_num
         
         if self.is_init_windows == True:
             self.is_init_windows = False
@@ -94,7 +91,7 @@ class Interface():
                     self.oled.img_8x8(CursorImage_8x8, 92, 28)
         elif enter == 1:  # 进入菜单选择状态
             if self.now_status == 1:
-                # 初始的界面指针指向main页面
+                # 初始的界面指针指向加热板设置页面
                 self.windows_point = self.heat_plate_setting
                 # 跳转前的状态标记
                 self.history_status = self.now_status
@@ -106,14 +103,21 @@ class Interface():
                 self.now_status = 0
                 self.is_choose == False
                 self.is_init_windows = True
+            elif self.now_status == 3:
+                # 初始的界面指针指向setting页面
+                self.windows_point = self.drow_setting
+                self.history_status = self.now_status
+                self.now_status = 0
+                self.is_choose == False
+                self.is_init_windows = True
 
         self.set_pwm(str(self.now_status))
         # 绘制滑动选项
         HeatImage = b"\x00\xC0\xE0\xB8\x88\x88\x88\x88\x88\x88\x88\xC8\x78\x18\x08\x00\x00\x30\x38\x2E\x22\x22\x22\x22\x22\x22\x32\x1A\x0E\x02\x00\x00"
         RunImage = b"\x00\x80\xC0\xE0\xF8\xFF\xFE\xFC\x70\x00\x00\xC0\x80\x00\x00\x00\x00\x1F\x3F\x7F\x9F\x07\x03\xE1\xF0\xF8\xFE\xFF\xFF\x7F\x3C\x00"
         CurveImage = b"\x00\x00\x00\x80\xC0\x30\x30\xE0\x00\x00\x80\xC0\x60\x30\x0C\x06\x1C\x06\x03\x01\x00\x00\x00\x01\x07\x07\x01\x00\x00\x00\x00\x00"
-        # SettingImage = b"\x80\xC0\xDC\xFC\xFC\x38\x1E\x1F\x1F\x1E\x38\xFC\xFC\xDC\xC0\x80\x01\x03\x3B\x3F\x3F\x1C\x78\xF8\xF8\x78\x1C\x3F\x3F\x3B\x03\x01"
-        op_list = [CurveImage, RunImage, HeatImage]
+        SettingImage = b"\x80\xC0\xDC\xFC\xFC\x38\x1E\x1F\x1F\x1E\x38\xFC\xFC\xDC\xC0\x80\x01\x03\x3B\x3F\x3F\x1C\x78\xF8\xF8\x78\x1C\x3F\x3F\x3B\x03\x01"
+        op_list = [SettingImage, RunImage, HeatImage, CurveImage]
         op_size = len(op_list)
         op_offsize = self.now_status
         op_list = op_list[op_offsize:op_size] + \
@@ -158,13 +162,13 @@ class Interface():
     """
 
     def heat_plate_setting(self, increase=0, enter=0):
+        """
+        主菜单中平板图标触发的界面
+        """
         op_status_num = 3
         if increase != 0 and self.is_choose == False:
             self.now_status += increase
-            if self.now_status < 0:
-                self.now_status = 0
-            elif self.now_status >= op_status_num:
-                self.now_status = op_status_num-1
+            self.now_status = self.now_status%op_status_num
         
         if self.is_init_windows == True:
             # init windows
@@ -182,15 +186,26 @@ class Interface():
                     self.is_choose = True
                     CursorImage_8x8 = b"\xFF\xFF\x7E\x7E\x3C\x3C\x18\x18"
                     self.oled.img_8x8(CursorImage_8x8, 92, 28)
+            self.drow_king_setting()
         elif self.now_status == 1:
-            pass
+            self.drow_pid_setting()
         elif self.now_status == 2:
-            if enter == 1:  # 按下返回
+            if enter == 1:  # 按下返回上一级
                 self.now_status = 0
                 self.windows_point = self.main
                 self.is_init_windows = True
         
         self.set_pwm(str(10+self.now_status))
+        BackImage = b"\x00\x00\x00\x00\x80\xC0\xE0\x70\x70\xFE\xFC\xF8\x70\x20\x00\x00\x00\x30\x1C\x07\x03\x01\x00\x00\x00\x03\x01\x00\x00\x00\x00\x00"
+        HeatingImage = b"\x00\x00\x88\x54\x22\x00\x00\xFE\xFE\x00\x00\x22\x54\x88\x00\x00\x00\x00\x08\x15\x22\x00\x00\x7F\x7F\x00\x00\x22\x15\x08\x00\x00"
+        PIDImage = b"\x00\x08\x1C\x14\x1C\x08\x08\x08\x08\x08\x08\x88\x88\x88\x08\x00\x00\x11\x39\x29\x39\x11\x11\x11\x11\x11\x11\x13\x12\x13\x11\x00"
+        op_list = [BackImage, HeatingImage, PIDImage]
+        op_size = len(op_list)
+        op_offsize = self.now_status
+        op_list = op_list[op_offsize:op_size] + \
+            op_list[0:op_offsize]
+        for num in range(op_size):
+            self.oled.img_16x16(op_list[num], 106, 3+17*num)
 
     def draw_heat_plate(self):
         if self.OLED_STATUS == False:
@@ -198,5 +213,77 @@ class Interface():
         weigth = 2
         self.oled.fill_rect(2, 2, 124, 60, 0)
         # 绘制光标
-        CursorImage_8x8 = b"\xFF\xFF\x7E\x7E\x3C\x3C\x18\x18"
-        self.oled.img_8x8(CursorImage_8x8, 92, 28)
+        UnCursorImage_8x8 = b"\xFF\xC3\x42\x66\x24\x3C\x18\x18"
+        self.oled.img_8x8(UnCursorImage_8x8, 92, 28)
+
+    def drow_pid_setting(self):
+        self.oled.fill_rect(2, 2, 90, 50, 0)
+        self.oled.text("P: ", 3, 3)
+        self.oled.text("I: ", 33, 3)
+        self.oled.text("D: ", 63, 3)
+        self.oled.text("T: ", 3, 23)
+        self.oled.text("B: ", 33, 23)
+
+    def drow_king_setting(self):
+        self.oled.fill_rect(2, 2, 90, 50, 0)
+        self.oled.text("Common (Al)", 3, 3)
+        self.oled.text("PTC", 3, 23)
+
+    def drow_setting(self, increase=0, enter=0):
+        pass
+        """
+        主菜单中设置图标触发的界面
+        """
+        op_status_num = 3
+        if increase != 0 and self.is_choose == False:
+            self.now_status += increase
+            self.now_status = self.now_status%op_status_num
+        
+        if self.is_init_windows == True:
+            # init windows
+            self.is_init_windows = False
+            self.draw_heat_plate()
+        
+        if self.now_status == 0:
+            if enter == 1:  # 进入菜单选择状态
+                if self.is_choose == True:
+                    self.is_choose = False
+                    UnCursorImage_8x8 = b"\xFF\xC3\x42\x66\x24\x3C\x18\x18"
+                    self.oled.img_8x8(UnCursorImage_8x8, 92, 28)
+                else:
+                    # 进入运行状态
+                    self.is_choose = True
+                    CursorImage_8x8 = b"\xFF\xFF\x7E\x7E\x3C\x3C\x18\x18"
+                    self.oled.img_8x8(CursorImage_8x8, 92, 28)
+            self.drow_knobs()
+        elif self.now_status == 1:
+            self.drow_info()
+            pass
+        elif self.now_status == 2:
+            if enter == 1:  # 按下返回上一级
+                self.now_status = 0
+                self.windows_point = self.main
+                self.is_init_windows = True
+        
+        self.set_pwm(str(10+self.now_status))
+        BackImage = b"\x00\x00\x00\x00\x80\xC0\xE0\x70\x70\xFE\xFC\xF8\x70\x20\x00\x00\x00\x30\x1C\x07\x03\x01\x00\x00\x00\x03\x01\x00\x00\x00\x00\x00"
+        KnobsImage = b"\x00\x00\x30\xF8\x08\x08\xCC\x4C\x4C\xCC\x08\x08\xF8\x30\x00\x00\x00\x00\x0C\x1F\x10\x10\x33\x32\x32\x33\x10\x10\x1F\x0C\x00\x00"
+        InfoImage = b"\x00\x00\x00\x18\x30\x60\xC0\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x18\x0C\x06\x33\x31\x30\x30\x30\x30\x30\x30\x00\x00"
+        op_list = [BackImage, KnobsImage, InfoImage]
+        op_size = len(op_list)
+        op_offsize = self.now_status
+        op_list = op_list[op_offsize:op_size] + \
+            op_list[0:op_offsize]
+        for num in range(op_size):
+            self.oled.img_16x16(op_list[num], 106, 3+17*num)
+
+    def drow_knobs(self):
+        pass
+        self.oled.fill_rect(2, 2, 90, 50, 0)
+        self.oled.text("Direction", 3, 3)
+
+    def drow_info(self):
+        pass
+        self.oled.fill_rect(2, 2, 90, 50, 0)
+        self.oled.text("HeatPlatform_SMT", 3, 3)
+        self.oled.text("Autor HQ", 3, 23)
