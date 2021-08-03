@@ -3,7 +3,7 @@ DIY个人分体式SMT平板加热台
 
 Github项目最新地址[链接](https://github.com/ClimbSnail/HeatPlatform_SMT) https://github.com/ClimbSnail/HeatPlatform_SMT
 
-Gitee地址（可能不是最新的）[链接](https://github.com/ClimbSnail/HeatPlatform_SMT) https://github.com/ClimbSnail/HeatPlatform_SMT
+Gitee地址（可能不是最新的）[链接](https://gitee.com/ClimbSnailQ/HeatPlatform_SMT) https://gitee.com/ClimbSnailQ/HeatPlatform_SMT
 
 Bilibli视频预览[链接](https://www.bilibili.com/video/BV1ky4y1m7ZF) https://www.bilibili.com/video/BV1ky4y1m7ZF
 
