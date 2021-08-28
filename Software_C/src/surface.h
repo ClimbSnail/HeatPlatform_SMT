@@ -29,9 +29,15 @@ public:
     ~Surface(){};
     void init(void);
     void set_now_temperature(int temp);
+<<<<<<< HEAD
     void set_now_temperature(const char *temp);
     void set_target_temperature(int temp);
     void set_target_temperature(const char *temp);
+=======
+    void set_now_temperature(const char* temp);
+    void set_target_temperature(int temp);
+    void set_target_temperature(const char* temp);
+>>>>>>> 13cc9d57966b95a90323786ae48897e56b318414
     void set_pwm(int pwm);
     void set_temperature(const char *target, const char *now);
     void set_temperature(int target, const char *now);
