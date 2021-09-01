@@ -6,11 +6,7 @@
 #include "common.h"
 #include "max6675.h"
 #include "knobs.h"
-<<<<<<< HEAD
 #include "buzzer.h"
-=======
-#include "Buzzer.h"
->>>>>>> 13cc9d57966b95a90323786ae48897e56b318414
 #include "pid.h"
 #include "surface.h"
 
@@ -34,13 +30,8 @@ volatile boolean temperature_err_flag = true;
 int temperature_buf[BUFFER_SIZE] = {20, 20, 20, 20, 20,
                                     20, 20, 20, 20, 20};
 #define MAX_ERR_TEMPERATURE 20            // 超温度的报警温差
-<<<<<<< HEAD
 volatile int temperature_setting = 0;     // 设定的目标温度
 volatile int temperature_now = 4095;      // 当前温度
-=======
-volatile int temperature_setting = 0;              // 设定的目标温度
-volatile int temperature_now = 4095;               // 当前温度
->>>>>>> 13cc9d57966b95a90323786ae48897e56b318414
 double temp_dvalue = 3;                   // PID开始控制的阈值范围
 volatile boolean start_read_temp = false; // 标志是否开始读取温度
 volatile boolean pid_enable = false;      // 标志pid控制是否开启
@@ -48,11 +39,7 @@ volatile boolean pid_enable = false;      // 标志pid控制是否开启
 KeyInfo knobs_val = {0, 0};            // 按键的值
 volatile boolean is_knobs_opt = false; // 按键是否操作
 
-<<<<<<< HEAD
 #define SAVE_DELAY_TIME 10          // 延迟保存数据 单位为秒
-=======
-#define SAVE_DELAY_TIME 30          // 延迟保存数据 单位为秒
->>>>>>> 13cc9d57966b95a90323786ae48897e56b318414
 volatile int save_counter = 0;      // 保存配置计数器
 volatile boolean save_flag = false; // 是否需要保存设置
 
@@ -151,11 +138,7 @@ void setup()
     // put your setup code here, to run once:
     // Serial.begin(74880);
 
-<<<<<<< HEAD
     load_config();
-=======
-    // load_config();
->>>>>>> 13cc9d57966b95a90323786ae48897e56b318414
     temperature_setting = user_data.save_temperature; // 设定的温度
 
     pinMode(PWM_PIN, OUTPUT);
@@ -179,7 +162,6 @@ void setup()
     buzzer.set_beep_time(700);
     surface.init();
     surface.set_temperature(temperature_setting, temperature_now, out_pwm);
-<<<<<<< HEAD
 }
 
 void read_temperature()
@@ -288,133 +270,19 @@ void knobs_deal()
     if (0 != knobs_val.switch_status)
     {
         buzzer.set_beep_time(300);
-=======
-    // analogWriteRange(1023);
-    // analogWriteFreq(5);
-    // analogWrite(PWM_PIN, 255);
-}
-
-void do_read_temperature()
-{
-    if (true == start_read_temp)
-    {
-        start_read_temp = false;
-
-        int temp = max6675.read_temperature_mock();
-        if (temp == 4095)
-        {
-            temperature_err_flag = true;
-            temperature_now = temp;
-            surface.set_temperature(temperature_setting, temperature_now, out_pwm);
-            return;
-        }
-        temperature_err_flag = false;
-
-        buf_sum = buf_sum - temperature_buf[buf_index];
-        temperature_buf[buf_index] = temp;
-        buf_sum = buf_sum + temperature_buf[buf_index];
-
-        buf_index = (buf_index + 1) % BUFFER_SIZE;
-        temperature_now = buf_sum / BUFFER_SIZE;
-        surface.set_temperature(temperature_setting, temperature_now, out_pwm);
-    }
-}
-
-void do_pid_ctrl()
-{
-    if (true == pid_enable)
-    {
-        pid_enable = false;
-
-        if (true == temperature_err_flag)
-        {
-            // 未接加热板
-            String s = "XXXX";
-            // md 控制pwm关闭
-            // md 页面显示
-            // surface.set_temperature(temperature_setting, s.c_str());
-            return;
-        }
-        if (temperature_setting - temperature_now > temp_dvalue)
-        {
-            // 还未到达PID开始调控的温度范围
-            out_pwm = 0; // 最大值输出
-            pid_contorller.set_data(3, 0);
-        }
-        else if (temperature_now > temperature_setting)
-        {
-            // 当前温度大于实际温度
-            out_pwm = PWM_PRECISION - 1; // 最小值输出
-            pid_contorller.set_data(0, 0);
-            if (temperature_now - temperature_setting > MAX_ERR_TEMPERATURE)
-            {
-                // 报警
-            }
-        }
-        else
-        {
-            if (temperature_setting == temperature_now)
-            {
-                // 报警
-            }
-            int ret_out = pid_contorller.get_output(temperature_setting, temperature_now);
-            out_pwm = ((int)ret_out) * 60;
-            // 以下处理pwm的高低电平反向
-            if (out_pwm > 0)
-            {
-                if (out_pwm > PWM_PRECISION - 1)
-                    out_pwm = 0;
-                else
-                    out_pwm = PWM_PRECISION - 1 - out_pwm;
-            }
-            else
-                out_pwm = PWM_PRECISION - 1;
-        }
-
-        // 输出温度
-        // analogWrite(2, 127);
-    }
-}
-
-void do_knobs_deal()
-{
-    if (true == is_knobs_opt)
-    {
-        is_knobs_opt = false;
-
-        knobs_val = knobs.get_data();
-        if (0 != knobs_val.pulse_count)
-        {
-            save_counter = SAVE_DELAY_TIME;
-            int speed = int(fabs(knobs_val.pulse_count / 2)) + 1;
-            temperature_setting += (speed * knobs_val.pulse_count);
-            surface.set_temperature(temperature_setting, temperature_now, out_pwm);
-        }
-        if (0 != knobs_val.switch_status)
-        {
-            buzzer.set_beep_time(300);
-        }
->>>>>>> 13cc9d57966b95a90323786ae48897e56b318414
     }
 }
 
 void loop()
 {
-<<<<<<< HEAD
     read_temperature();
     pid_ctrl();
     knobs_deal();
-=======
-    do_read_temperature();
-    do_pid_ctrl();
-    do_knobs_deal();
->>>>>>> 13cc9d57966b95a90323786ae48897e56b318414
     if (true == save_flag)
     {
         save_flag = false;
         // 保存设定的温度
         user_data.save_temperature = temperature_setting;
-<<<<<<< HEAD
 
         // iTimer.disableTimer();
         // ISR_Timer.disableAll();
@@ -422,8 +290,5 @@ void loop()
         // save_config();
         // ISR_Timer.enableAll();
         // iTimer.enableTimer();
-=======
-        // save_config();
->>>>>>> 13cc9d57966b95a90323786ae48897e56b318414
     }
 }

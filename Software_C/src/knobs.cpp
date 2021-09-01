@@ -51,10 +51,6 @@ void Knobs::interruter_funcA(void)
         if (m_pinB_Status == 0 && flag == 1)
         {
             --m_key_info.pulse_count;
-<<<<<<< HEAD
-=======
-
->>>>>>> 13cc9d57966b95a90323786ae48897e56b318414
         }
         if (m_pinB_Status && flag == 0)
         {
@@ -68,19 +64,11 @@ void Knobs::interruter_funcSW(void)
 {
     // 发生外部中断后执行的函数
     int status = digitalRead(m_pinSw_num);
-<<<<<<< HEAD
     if (0 == status)
     {
         // delay(10);   // 不能加延时，会发生终端异常
         status = digitalRead(m_pinSw_num);
         if (0 == status)
-=======
-    if( 0 == status )
-    {
-        // delay(10);   // 不能加延时，会发生终端异常
-        status = digitalRead(m_pinSw_num);
-        if( 0 == status )
->>>>>>> 13cc9d57966b95a90323786ae48897e56b318414
         {
             m_key_info.switch_status = 1;
         }
@@ -90,13 +78,8 @@ void Knobs::interruter_funcSW(void)
 KeyInfo Knobs::get_data(void)
 {
     KeyInfo ret_info = m_key_info;
-<<<<<<< HEAD
     m_key_info.pulse_count = 0;   // clear
     m_key_info.switch_status = 0; // clear
-=======
-    m_key_info.pulse_count = 0;  // clear
-    m_key_info.switch_status = 0;  // clear
->>>>>>> 13cc9d57966b95a90323786ae48897e56b318414
     return ret_info;
 }
 

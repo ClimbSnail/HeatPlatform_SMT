@@ -43,11 +43,7 @@ void Surface::set_now_temperature(int temp)
 {
     display->setCursor(10, 20);
     display->print("Now: ");
-<<<<<<< HEAD
     if (4095 == temp)
-=======
-    if( 4095 == temp)
->>>>>>> 13cc9d57966b95a90323786ae48897e56b318414
     {
         display->println("xxx");
     }
