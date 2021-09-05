@@ -23,6 +23,9 @@ class Surface
 {
 public:
     Adafruit_SSD1306 *display;
+    int m_temperature_target;
+    int m_temperature_now;
+    int m_pwm;
 
 public:
     Surface(uint8 sda, uint8 scl);
@@ -33,10 +36,9 @@ public:
     void set_target_temperature(int temp);
     void set_target_temperature(const char *temp);
     void set_pwm(int pwm);
-    void set_temperature(const char *target, const char *now);
-    void set_temperature(int target, const char *now);
-    void set_temperature(const char *target, int now);
     void set_temperature(int target, int now, int pwm);
+    void display_main(void);
+    void set_setting(int num, double *data, int chooseNum, boolean isChoose);
 };
 
 #endif
