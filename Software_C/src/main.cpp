@@ -23,8 +23,7 @@ ESP8266Timer iTimer;
 ESP8266_ISR_Timer ISR_Timer;
 #define HW_TIMER_INTERVAL_MS 1L
 
-#define SWITCH_TIME 1000 // 检测长按的时间
-// unsigned long currentMillis;    // 当前按键按下时间
+#define SWITCH_TIME 1000      // 检测长按的时间
 unsigned long previousMillis; // 上次刷新屏幕的时间戳
 
 // 以下为运行时的参数
@@ -35,25 +34,20 @@ int buf_sum = 0; // 需要在setup中初始化赋值
 volatile boolean temperature_err_flag = true;
 int temperature_buf[BUFFER_MAX_SIZE] = {20, 20, 20, 20, 20,
                                         20, 20, 20, 20, 20};
-#define MAX_ERR_TEMPERATURE 20            // 超温度的报警温差
+
 volatile int temperature_setting = 0;     // 设定的目标温度
 volatile int temperature_now = 4095;      // 当前温度
-double temp_dvalue = 10;                  // PID开始控制的阈值范围
 volatile boolean start_read_temp = false; // 标志是否开始读取温度
 volatile boolean pid_enable = false;      // 标志pid控制是否开启
 
 KeyInfo knobs_val = {0, 0};            // 按键的值
 volatile boolean is_knobs_opt = false; // 按键是否操作
 
-#define SAVE_DELAY_TIME 10             // 延迟保存数据 单位为秒
-volatile int save_timeout_counter = 0; // 保存配置超时计数器
-volatile boolean save_flag = false;    // 是否需要保存设置
-
-#define PWM_FREQ 5                        // pwm的频率/
-#define PWM_PRECISION 200                 // pwm的精度
-#define PWM_PIN 2                         // pwm的pin引脚
-volatile int out_pwm = PWM_PRECISION - 1; // 输出的PWM 199为最大值
-volatile int pwm_count = 0;               // pwm的计数值
+#define PWM_FREQ 5                    // pwm的频率/
+#define PWM_PRECISION 200             // pwm的精度
+#define PWM_PIN 2                     // pwm的pin引脚
+volatile int out_pwm = PWM_PRECISION; // 输出的PWM 199为最大值
+volatile int pwm_count = 0;           // pwm的计数值
 
 int process_index = 0;    // 控制页面
 #define PROCESS_MAX_NUM 2 // 页面最大数
@@ -102,19 +96,6 @@ void interrupt_ctrl_pid()
     pid_enable = true;
 }
 
-void interrupt_save_param()
-{
-    if (0 < save_timeout_counter)
-    {
-        --save_timeout_counter;
-    }
-
-    if (1 == save_timeout_counter)
-    {
-        save_flag = true;
-    }
-}
-
 void interrupt_pwm()
 {
     if (0 == pwm_count)
@@ -128,7 +109,7 @@ void interrupt_pwm()
     pwm_count = (pwm_count + 1) % PWM_PRECISION;
 }
 
-#define NUMBER_ISR_TIMERS 6
+#define NUMBER_ISR_TIMERS 5
 
 // You can assign any interval for any timer here, in milliseconds
 uint32_t TimerInterval[NUMBER_ISR_TIMERS] = {
@@ -136,13 +117,11 @@ uint32_t TimerInterval[NUMBER_ISR_TIMERS] = {
     200L,
     150L,
     200L,
-    1000L,
     1000L / PWM_FREQ / PWM_PRECISION};
 
 irqCallback irqCallbackFunc[NUMBER_ISR_TIMERS] = {
     buzzer.timer_handler, interrupt_read_temperature,
-    interrupt_check_knobs, interrupt_ctrl_pid,
-    interrupt_save_param, interrupt_pwm};
+    interrupt_check_knobs, interrupt_ctrl_pid, interrupt_pwm};
 
 // 加热板的主控制页面
 void main_process(int type, int16_t value)
@@ -157,7 +136,6 @@ void main_process(int type, int16_t value)
     break;
     case ENCODER_TYPE:
     {
-        save_timeout_counter = SAVE_DELAY_TIME;
         int speed = int(fabs(value / 2)) + 1;
         temperature_setting += (speed * value);
         // 限制温度调整范围
@@ -217,7 +195,8 @@ void setting_process(int type, int16_t value)
             break;
             case 2:
             {
-                user_data.direction = (user_data.direction + value) % 2;
+                // +150（2的整倍数就行） 的作用主要为了让数据不会出现负数
+                user_data.direction = (user_data.direction + 150 + value) % 2;
             }
             break;
             case 3:
@@ -227,38 +206,50 @@ void setting_process(int type, int16_t value)
             break;
             case 4:
             {
-                user_data.kp += (0.1 * value);
+                user_data.overflow_temperature += value;
             }
             break;
             case 5:
             {
-                user_data.ki += (0.1 * value);
+                user_data.pid_threshold_value += value;
             }
             break;
             case 6:
             {
-                user_data.kd += (0.1 * value);
+                user_data.kp += (0.1 * value);
             }
             break;
             case 7:
             {
-                user_data.kt += value;
+                user_data.ki += (0.1 * value);
             }
             break;
             case 8:
             {
+                user_data.kd += (0.1 * value);
             }
             break;
             case 9:
             {
+                user_data.kt += value;
+            }
+            break;
+            case 10:
+            {
+                // 恢复默认
+            }
+            break;
+            case 11:
+            {
+                // 保存并重启
             }
             break;
             }
         }
         else
         {
-            // +10 的作用主要为了让
-            setting_info_index = (setting_info_index + 10 + value) % 10;
+            // +120（USER_SET_PARAM_NUM + 2的整倍数就行） 的作用主要为了让数据不会出现负数
+            setting_info_index = (setting_info_index + 120 + value) % (USER_SET_PARAM_NUM + 2);
         }
     }
     break;
@@ -271,13 +262,14 @@ void setting_process(int type, int16_t value)
         }
         else
         {
-            if (8 == setting_info_index)
+            if (10 == setting_info_index)
             {
                 init_user_data();
                 return;
             }
-            else if (9 == setting_info_index)
+            else if (11 == setting_info_index)
             {
+                user_data.save_temperature = temperature_setting;
                 // 保存并重启
                 iTimer.disableTimer();
                 ISR_Timer.disableAll();
@@ -295,12 +287,14 @@ void setting_process(int type, int16_t value)
     default:
         break;
     }
-    double setting_info_data[8] = {
+    double setting_info_data[USER_SET_PARAM_NUM] = {
         user_data.save_temperature, user_data.mode,
         user_data.direction, user_data.err_temperature,
+        user_data.overflow_temperature, user_data.pid_threshold_value,
         user_data.kp, user_data.ki, user_data.kd, user_data.kt};
 
-    surface.set_setting(8, setting_info_data, setting_info_index, setting_info_choose);
+    surface.set_setting(USER_SET_PARAM_NUM, setting_info_data,
+                        setting_info_index, setting_info_choose);
 }
 
 void setup()
@@ -383,7 +377,7 @@ void pid_ctrl()
         return;
     }
 
-    if (temperature_setting - temperature_now > temp_dvalue)
+    if (temperature_setting - temperature_now > user_data.pid_threshold_value)
     {
         // 还未到达PID开始调控的温度范围
         out_pwm = 0; // 最大值输出
@@ -394,7 +388,7 @@ void pid_ctrl()
         // 当前温度大于实际温度
         out_pwm = PWM_PRECISION; // 最小值输出
         pid_contorller.set_data(0, 0);
-        if (temperature_now - temperature_setting > MAX_ERR_TEMPERATURE && temperature_now > 50)
+        if (temperature_now - temperature_setting > user_data.overflow_temperature && temperature_now > 50)
         {
             // 报警提示音
             buzzer.set_beep_time(700);
@@ -441,6 +435,7 @@ void knobs_deal()
             knobs_val.pulse_count = -knobs_val.pulse_count;
         }
         pProcessArray[process_index](ENCODER_TYPE, knobs_val.pulse_count);
+        buzzer.set_beep_time(50);
     }
     if (0 != knobs_val.switch_status)
     {
@@ -463,21 +458,7 @@ void loop()
     knobs_deal();
     if (doDelayMillisTime(500, &previousMillis, false))
     {
-        previousMillis = millis();
         // 刚开始process_index=0，首页指向控制加热板的控制页面
         pProcessArray[process_index](NONE_TYPE, 0); // 更新动作
-    }
-    if (true == save_flag)
-    {
-        save_flag = false;
-        // 保存设定的温度
-        user_data.save_temperature = temperature_setting;
-
-        // iTimer.disableTimer();
-        // ISR_Timer.disableAll();
-        // delay(100);
-        // save_config();
-        // ISR_Timer.enableAll();
-        // iTimer.enableTimer();
     }
 }

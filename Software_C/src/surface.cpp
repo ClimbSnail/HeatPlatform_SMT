@@ -169,12 +169,12 @@ void Surface::display_main(void)
 
 void Surface::set_setting(int num, double *data, int chooseNum, boolean isChoose)
 {
-    static char *setting_info[10] = {"ST:", "MD:", "DC:", "ET:", "Kp:", "Ki:", "Kd:", "Kt:", "DF", "SR"};
-    static uint8 pos_x[10] = {0, 45, 90, 0, 45, 90, 0, 45, 90, 110};
-    static uint8 pos_y[10] = {0, 0, 0, 16, 16, 16, 32, 32, 32, 32};
-    static uint8 pos_d[8] = {0, 0, 0, 0, 1, 1, 1, 1};
-    static uint8 choose_x[10] = {20, 65, 110, 20, 65, 110, 20, 65, 95, 115};
-    static uint8 choose_y[10] = {9, 9, 9, 25, 25, 25, 40, 40, 40, 40};
+    static char *setting_info[12] = {"ST:", "MD:", "DC:", "ET:", "OT:", "Ptv:", "Kp:", "Ki:", "Kd:", "Kt:", "DF", "SR"};
+    static uint8 pos_x[12] = {0, 45, 90, 0, 45, 90, 0, 45, 90, 0, 45, 65};
+    static uint8 pos_y[12] = {0, 0, 0, 16, 16, 16, 32, 32, 32, 48, 48, 48};
+    static uint8 pos_d[10] = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1};
+    static uint8 choose_x[12] = {20, 65, 110, 20, 65, 110, 20, 65, 110, 20, 50, 70};
+    static uint8 choose_y[12] = {9, 9, 9, 25, 25, 25, 41, 41, 41, 57, 57, 57};
 
 #if OLED_ABLE
     // Clear the buffer
@@ -192,11 +192,11 @@ void Surface::set_setting(int num, double *data, int chooseNum, boolean isChoose
             display->print((int)data[pos]);
     }
     // "参数恢复默认值"
-    display->setCursor(pos_x[8], pos_y[8]);
-    display->print(setting_info[8]);
+    display->setCursor(pos_x[10], pos_y[10]);
+    display->print(setting_info[10]);
     // 最后一个 "保存设置并重启"
-    display->setCursor(pos_x[9], pos_y[9]);
-    display->print(setting_info[9]);
+    display->setCursor(pos_x[11], pos_y[11]);
+    display->print(setting_info[11]);
     if (0 == isChoose)
     {
         display->drawTriangle(choose_x[chooseNum], choose_y[chooseNum],

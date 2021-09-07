@@ -1,12 +1,15 @@
 #include <Arduino.h>
-#include <EEPROM.h> //导入Flash库文件
+#include <EEPROM.h>           //导入Flash库文件
+#define USER_SET_PARAM_NUM 10 // 用户的设置项保存参数的数量（UserData）
 
 struct UserData
 {
-    int save_temperature; // 保存的温度
-    int mode;             //
-    int direction;        // 编码器方向 0正 1反
-    int err_temperature;  // 误差温度
+    int save_temperature;     // 保存的温度
+    int mode;                 //
+    int direction;            // 编码器方向 0正 1反
+    int err_temperature;      // 误差温度
+    int overflow_temperature; // 超温度的报警温差
+    int pid_threshold_value;  // PID开始控制的阈值范围
     double kp;
     double ki;
     double kd;
@@ -21,6 +24,8 @@ void init_user_data(void)
     user_data.mode = 0;
     user_data.direction = 0;
     user_data.err_temperature = 0;
+    user_data.overflow_temperature = 20;
+    user_data.pid_threshold_value = 3;
     user_data.kp = 4.5;
     user_data.ki = 0.15;
     user_data.kd = 0.2;
