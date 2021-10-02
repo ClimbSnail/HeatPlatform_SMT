@@ -1,5 +1,5 @@
 # HeatPlatform_SMT
-DIY个人分体式SMT平板加热台
+DIY个人分体式SMT平板加热台。ps:二代已经在开发中了 https://github.com/ClimbSnail/SuperHeat
 
 Github项目最新地址[链接](https://github.com/ClimbSnail/HeatPlatform_SMT) https://github.com/ClimbSnail/HeatPlatform_SMT
 
