@@ -28,7 +28,6 @@ Bilibli视频预览[链接](https://www.bilibili.com/video/BV1ky4y1m7ZF) https:/
 3. 屏幕使用0.96寸的OLED（SSD1306）液晶显示屏。
 4. 使用旋转编码器代替按键式操作，提高用户体验。
 5. 支持温度曲线的控制。（即将支持）
-6. 支持通过wifi进行固件升级（之后更新）。[链接](ws://192.168.4.1:8266/) ws://192.168.4.1:8266/
 
 ### 工程包含
 1. B站全套自作教程（等待更新）。Bilibli视频[链接](https://www.bilibili.com/video/BV1ky4y1m7ZF) https://www.bilibili.com/video/BV1ky4y1m7ZF
@@ -61,11 +60,6 @@ Bilibli视频预览[链接](https://www.bilibili.com/video/BV1ky4y1m7ZF) https:/
 4. GPIO16不支持中断、PWM、I2C以及One-Wire功能，只能作为普通的输入、输出端口。
 5. 光耦的输入触发信号电流要大于5ma，不然光耦的输出端将不能导通。
 6. 光耦信号的输出端要接可控硅的1脚。
-
-### 在线更新固件脚本（在计划中）
-1. 使用webrepl进行更新固件(双击webrepl工具里的"webrepl.html")
-2. [链接](ws://192.168.4.1:8266/) ws://192.168.4.1:8266/（链接加热控制器的wifi后方可链接）
-3. 密码预设为`88888888`（在config.json文件中已注明）
 
 
 ### 控制器安装说明
@@ -125,10 +119,3 @@ SR: 名为"Save and Reset"保存并重启，短按该项，加热台立即进入
 
 ### 资料
 [PID动画演示](https://rossning92.github.io/pid-simulation/)
-
-### 学习资料传送门
-1. [教程 in Github](https://github.com/lvidarte/esp8266/wiki)
-2. [ESP8266固件](http://micropython.org/download#esp8266)
-3. [uPyCraft IDE](http://docs.dfrobot.com.cn/upycraft/)
-4. [官方参考文档](https://docs.micropython.org/en/latest/esp8266/quickref.html#pins-and-gpio)
-5. [MicroPython API](https://makeblock-micropython-api.readthedocs.io/zh/latest/library/)

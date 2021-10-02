@@ -22,3 +22,18 @@
 更新程序是建立在之前进行过_"固件刷写"_操作。
 
 按住控制器上的`MODE`按键，然后按下`RST`松开，`MODE`按键需等待背部ESP8266的指示灯常亮`（5-7s）`左右再松开，控制器即可进入程序更新模式。可跳过前6步骤，直接从第7步开始 更新想要更新的程序文件。
+
+
+### 在线更新固件脚本（在计划中）
+1. 使用webrepl进行更新固件(双击webrepl工具里的"webrepl.html")
+2. [链接](ws://192.168.4.1:8266/) ws://192.168.4.1:8266/（链接加热控制器的wifi后方可链接）
+3. 密码预设为`88888888`（在config.json文件中已注明）
+
+
+### 学习资料传送门
+1. [教程 in Github](https://github.com/lvidarte/esp8266/wiki)
+2. [ESP8266固件](http://micropython.org/download#esp8266)
+3. [uPyCraft IDE](http://docs.dfrobot.com.cn/upycraft/)
+4. [官方参考文档](https://docs.micropython.org/en/latest/esp8266/quickref.html#pins-and-gpio)
+5. [MicroPython API](https://makeblock-micropython-api.readthedocs.io/zh/latest/library/)
+
